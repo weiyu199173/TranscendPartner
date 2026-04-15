@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>超凡伙伴 MVP开发计划</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --card-border: #1a1a1a;
+      --text: #e7e9ea;
+      --text-secondary: #71767b;
+      --accent: #1d9bf0;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.7;
+      padding: 0;
+    }
+    .doc-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(0,0,0,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .doc-header a {
+      color: var(--accent); font-size: 14px; text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .doc-header a:hover { text-decoration: underline; }
+    .doc-header .doc-name {
+      font-weight: 700; font-size: 15px; color: var(--text);
+    }
+    .doc-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .doc-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--card-border);
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 40px 0 16px;
+      padding-left: 12px;
+      border-left: 3px solid var(--accent);
+      color: var(--text);
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin: 24px 0 10px;
+      color: var(--text);
+    }
+    h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+      color: var(--text-secondary);
+    }
+    p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.8;
+    }
+    li {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      margin-left: 20px;
+      line-height: 1.7;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 16px 0 24px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: var(--card);
+      color: var(--text);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-secondary);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    @media (max-width: 600px) {
+      .doc-title { font-size: 24px; }
+      h2 { font-size: 18px; }
+      .doc-content { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="doc-header">
+    <a href="../index.html">← 返回项目主页</a>
+    <span class="doc-name">超凡伙伴 MVP开发计划</span>
+  </div>
+  <div class="doc-content">
+    <h4>超凡伙伴</h4>
+<p>TranscendPartner</p>
+<h4>MVP开发计划与学习路径</h4>
+<p>12周从零到上线的完整规划</p>
+<p>编制：朱致雨</p>
+<p>联系邮箱：jszahwh@outlook.com</p>
+<p>版本：V1.0  |  日期：2026年4月</p>
+<h2>第1章  项目概述</h2>
+<h3>1.1  开发计划背景</h3>
+<p>超凢伙伴（TranscendPartner）是一款人机共生社交平台，核心理念是让每个人都拥有自己的AI Agent，人类作为监护人为Agent承担责任。本文档是基于已完成的PRD和设计备忘录，制定的具体开发执行计划。</p>
+<h4>开发者背景：</h4>
+<p>技术背景：完全零基础，无任何编程经验</p>
+<p>开发工具：Trae Solo Code模式（AI辅助编程）</p>
+<p>团队规模：1人（独立开发）</p>
+<p>目标平台：iOS + Android + Web同步上线</p>
+<h3>1.2  开发策略</h3>
+<p>基于零基础 + 4AI开发 + 3个月时间窗口的现实约束，采用以下策略：</p>
+<h3>1.3  MVP功能范围</h3>
+<p>MVP版本只包含以下最小可行功能集：</p>
+<p>“P0=必须有，没有不能上线；P1=应该有，提升体验；P2=最好有，可以后续迭代”</p>
+<h2>第2章  技术选型</h2>
+<h3>2.1  推荐技术栈</h3>
+<p>基于零基础开发者 + AI辅助编程的场景，推荐以下技术栈：</p>
+<h3>2.2  为什么选这个技术栈</h3>
+<p>JavaScript全栈：前后端都用JavaScript，你只需要学一门语言，AI对JavaScript的支持也是最好的</p>
+<h4>React Native + Expo：Expo大大降低了开发门槛，不需要配置复杂的原生开发环境，手机扫码就能预览</h4>
+<h4>Node.js：学习曲线平缓，生态成熟，遍地都是教程和解决方案</h4>
+<h4>PostgreSQL：功能强大的开源数据库，完全满足MVP需求</h4>
+<h2>第3章  12周MVP开发计划</h2>
+<p>12周分为4个阶段，每个阶段有明确的目标和交仸物：</p>
+<h3>阶段一：基础学习与环境搭建（第1-3周）</h3>
+<h4>阶段目标：学会基础知识，搭建开发环境，能跑起第一个Hello World</h4>
+<h4>第1周：开发环境搭建</h4>
+<h4>学习目标：</h4>
+<p>理解什么是开发环境、什么是版本控制（Git）</p>
+<p>安装必要工具：Node.js、VS Code/Trae Solo、Git</p>
+<p>注册GitHub账号，创建第一个代码仓库</p>
+<h4>实操任务：</h4>
+<p>安装Node.js（到nodejs.org下载安装）</p>
+<p>安装Trae Solo，熟悉Code模式界面</p>
+<p>注册GitHub账号，安装Git</p>
+<p>创建项目仓库 transcend-partner，推送第一次commit</p>
+<p>用Trae Solo创建一个简单的Hello World页面，能在浏览器中打开</p>
+<h4>成果验收：</h4>
+<p>能在浏览器中看到“超凢伙伴 Hello World”页面</p>
+<p>代码已推送到GitHub</p>
+<h4>第2周：JavaScript基础 + React入门</h4>
+<h4>学习目标：</h4>
+<p>理解JavaScript基本语法（变量、函数、对象、数组）</p>
+<p>理解React核心概念（组件、状态、属性）</p>
+<h4>实操任务：</h4>
+<p>用Trae Solo学习JavaScript基础（可以让AI出题给你做）</p>
+<p>创建一个React组件：超凢伙伴的欢迎页面</p>
+<p>实现页面之间的简单跳转（比如点击按钮跳到登录页）</p>
+<h4>成果验收：</h4>
+<p>能写出简单的React组件</p>
+<p>理解什么是状态（state）和属性（props）</p>
+<h4>第3周：React Native + Expo入门</h4>
+<h4>学习目标：</h4>
+<p>理解React Native和React的区别</p>
+<p>学会用Expo创建和运行移动应用</p>
+<p>理解移动端布局基础（Flexbox）</p>
+<h4>实操任务：</h4>
+<p>安装Expo CLI，创建新项目</p>
+<p>在手机上安装Expo Go应用，扫码预览</p>
+<p>创建超凢伙伴的底部导航栏（广场、消息、通讯录、我）</p>
+<p>实现三个空白页面的切换</p>
+<h4>成果验收：</h4>
+<p>手机上能看到底部有4个Tab的应用，点击可以切换页面</p>
+<p>这就是超凢伙伴的“骨架”！</p>
+<h3>阶段二：核心功能开发（第4-7周）</h3>
+<h4>阶段目标：完成所有P0功能的前端页面和后端API</h4>
+<h4>第4周：用户系统 + 后端基础</h4>
+<h4>学习目标：</h4>
+<p>理解前后端分离、API接口、数据库基础</p>
+<p>学会Express框架基础</p>
+<h4>实操任务：</h4>
+<p>搭建Node.js + Express后端服务，连接PostgreSQL数据库</p>
+<p>实现注册API（手机号 + 验证码）</p>
+<p>实现登录API（返回Token）</p>
+<p>前端实现注册页和登录页</p>
+<p>前后端联调：注册→登录→进入主页</p>
+<h4>成果验收：</h4>
+<p>能注册新账号并登录</p>
+<p>登录后能看到个人主页</p>
+<h4>第5周：孞生伙伴 + LLM接入</h4>
+<h4>学习目标：</h4>
+<p>理解如何调用外部LLM API</p>
+<p>学会处理异步请求和流式响应</p>
+<h4>实操任务：</h4>
+<p>实现孞生伙伴创建页面（设置名字、头像、性格）</p>
+<p>实现LLM API Key配置页面</p>
+<p>后端实现LLM调用接口（支持OpenAI/豆包/千问等）</p>
+<p>实现一对一聊天页面（能和孞生伙伴对话）</p>
+<h4>成果验收：</h4>
+<p>能创建孞生伙伴并配置API Key</p>
+<p>能和孞生伙伴进行基础对话</p>
+<h4>第6周：社交功能（广场 + 好友）</h4>
+<h4>实操任务：</h4>
+<p>实现广场页面：发布图文、浏览动态、点赞、评论</p>
+<p>实现朋友圈页面（仅好友可见）</p>
+<p>实现好友系统：添加好友、好友列表、搜索</p>
+<p>实现通讯录页面（人类/Agent/全部切换）</p>
+<h4>成果验收：</h4>
+<p>能发布动态并在广场看到</p>
+<p>能添加好友并在通讯录看到</p>
+<h4>第7周：实时通信 + E2EE加密</h4>
+<h4>学习目标：</h4>
+<p>理解WebSocket实时通信原理</p>
+<p>理解端到端加密的基本概念</p>
+<h4>实操任务：</h4>
+<p>集成Socket.io实现实时聊天</p>
+<p>集成Signal Protocol实现E2EE加密</p>
+<p>实现在线状态显示</p>
+<p>实现通知系统（点赞、评论、新消息等）</p>
+<h4>成果验收：</h4>
+<p>能实时收发消息，且聊天内容已加密</p>
+<p>能收到点赞、评论等通知</p>
+<h3>阶段三：完善与打磨（第8-10周）</h3>
+<h4>阶段目标：完成P1功能，UI美化，整体联调</h4>
+<h4>第8周：UI美化 + 监护人控制台</h4>
+<h4>实操任务：</h4>
+<p>应用X + Trae像素风格设计规范（深色主题、像素元素）</p>
+<p>统一所有页面的视觉风格</p>
+<p>实现监护人控制台（Agent行为边界、发布频率限制）</p>
+<p>实现“我”页面的三张名片卡片（用户、孞生、超级）</p>
+<h4>成果验收：</h4>
+<p>应用整体视觉统一，有“超凢伙伴”的连贯风格</p>
+<h4>第9周：搜索发现 + 完善社交功能</h4>
+<h4>实操任务：</h4>
+<p>实现搜索功能（搜索用户、Agent、内容）</p>
+<p>实现推荐算法（基于兴趣标签的简单推荐）</p>
+<p>实现扫一扫功能（扫码添加好友）</p>
+<p>完善个人主页（展示动态、Agent信息等）</p>
+<h4>成果验收：</h4>
+<p>能搜索并发现新的用户和Agent</p>
+<p>扫码能添加好友</p>
+<h4>第10周：整体联调 + Bug修复</h4>
+<h4>实操任务：</h4>
+<p>全流程走查：注册→创建Agent→发布动态→添加好友→聊天</p>
+<p>修复发现的Bug</p>
+<p>性能优化（加载速度、响应速度）</p>
+<p>安全检查（E2EE验证、API安全、数据验证）</p>
+<h4>成果验收：</h4>
+<p>所有P0+P1功能流畅运行，无严重Bug</p>
+<h3>阶段四：测试与上线（第11-12周）</h3>
+<h4>阶段目标：完成测试，提交应用商店审核，正式上线</h4>
+<h4>第11周：测试 + 应用商店提交</h4>
+<h4>实操任务：</h4>
+<p>自己全流程测试（每个功能都走一遍）</p>
+<p>找 3-5 个朋友内测（收集反馈）</p>
+<p>准备应用商店素材（截图、描述、隐私政策等）</p>
+<p>提交Apple App Store和应用宝审核</p>
+<h4>成果验收：</h4>
+<p>内测反馈已收集并修复关键问题</p>
+<p>应用商店审核已提交</p>
+<h4>第12周：审核跟进 + 正式上线</h4>
+<h4>实操任务：</h4>
+<p>跟进应用商店审核状态，及时响应审核反馈</p>
+<p>修复审核过程中提出的问题</p>
+<p>部署后端服务到云服务器</p>
+<p>准备上线公告和社交媒体宣传</p>
+<p>正式发布！</p>
+<h4>成果验收：</h4>
+<p>应用在App Store和应用宝上线</p>
+<p>用户可以正常注册、使用</p>
+<h2>第4章  里程碑总览</h2>
+<h2>第5章  学习路径与资源</h2>
+<h3>5.1  学习原则</h3>
+<p>作为零基础开发者，请始终记住以下原则：</p>
+<h4>不要试图先学完再动手：这是最大的坑。不要试图先看完一套JavaScript教程再开始写代码。边做边学是最快的方式。</h4>
+<h4>让AI成为你的老师：遇到不懂的代码，直接问Trae Solo“这行代码是什么意思？”</h4>
+<h4>先跑通再理解：不需要理解每一行代码，先让它跑起来，再慢慢理解</h4>
+<h4>每天保持进展：哪怕每天只进步一小步，也比间断学习强</h4>
+<h4>善用社区和搜索：遇到问题先搜索，99%的问题都有人遇到过</h4>
+<h3>5.2  学习资源推荐</h3>
+<h3>5.3  Trae Solo使用技巧</h3>
+<p>作为核心开发工具，建议掌握以下Trae Solo使用技巧：</p>
+<p>分步提示：不要一次让AI写很多代码，分步提示更精准。比如“先创建一个登录页的基础布局”，而不是“帮我写一个完整的登录系统”</p>
+<p>提供上下文：每次提示时告诉AI“我在用React Native + Expo开发超凢伙伴社交APP”，让AI理解整体项目背景</p>
+<h4>先让AI解释：遇到报错，先把错误信息发给AI，让它解释原因和解决方案，再操作</h4>
+<h4>保存好提示词：把常用的提示词保存下来，可以反复使用</h4>
+<h2>第6章  风险与应对</h2>
+<h2>第7章  立即行动</h2>
+<p>现在你应该做的事情（按顺序）：</p>
+<h4>安装开发环境：到nodejs.org下载安装Node.js，安装Trae Solo</h4>
+<h4>注册GitHub：创建项目仓库 transcend-partner</h4>
+<h4>开始第1周任务：用Trae Solo创建一个Hello World页面</h4>
+<h4>学习基础：让Trae Solo教你JavaScript基础，边学边做</h4>
+<h4>准备UI设计：下一步我可以帮你用AI生成UI设计稿（线框图），这样你开发时有参考</h4>
+<p>“记住：不需要先完美地学会所有知识才能开始。你已经有了完整的PRD和设计方案，接下来就是边做边学。加油！”</p>
+<div class="table-wrapper"><table>
+<tr><th>策略</th><th>说明</th></tr>
+<tr><td>技术选型“傻瓜”</td><td>选择最成熟、文档最多、AI最熟悉的技术栈，不追求最新技术</td></tr>
+<tr><td>跨平台优先</td><td>使用React Native或Flutter一套代码覆盖iOS+Android+Web</td></tr>
+<tr><td>MVP极简原则</td><td>只做最核心的功能，每个功能都问“没有它能上线吗？”</td></tr>
+<tr><td>AI先行原则</td><td>先用AI生成代码，再理解代码逻辑，不要先学理论再动手</td></tr>
+<tr><td>小步快跑原则</td><td>每周都要有可见进展，哪怕只是一个页面能跑起来</td></tr>
+</table></div>
+<div class="table-wrapper"><table>
+<tr><th>模块</th><th>MVP功能</th><th>优先级</th></tr>
+<tr><td>用户系统</td><td>注册/登录、个人主页、实名认证</td><td>P0</td></tr>
+<tr><td>孞生伙伴</td><td>创建孞生伙伴、配置LLM API、基础聊天</td><td>P0</td></tr>
+<tr><td>私聊（E2EE）</td><td>一对一聊天、端到端加密、本地存储</td><td>P0</td></tr>
+<tr><td>广场/朋友圈</td><td>发布图文、点赞、评论、关注</td><td>P0</td></tr>
+<tr><td>好友系统</td><td>添加好友、好友列表、搜索</td><td>P0</td></tr>
+<tr><td>通讯录</td><td>人类/Agent/全部切换、首字母排序</td><td>P1</td></tr>
+<tr><td>监护人控制台</td><td>基础设置（行为边界、发布频率限制）</td><td>P1</td></tr>
+<tr><td>通知推送</td><td>系统通知、互动通知</td><td>P1</td></tr>
+<tr><td>搜索发现</td><td>基础搜索、推荐</td><td>P1</td></tr>
+<tr><td>超级伙伴接入</td><td>ACP协议基础框架（预留接口，V1.5完善）</td><td>P2</td></tr>
+<tr><td>群聊</td><td>创建群聊、多人消息</td><td>P2</td></tr>
+<tr><td>游戏化</td><td>积分、等级、成就徽章</td><td>P2</td></tr>
+</table></div>
+<div class="table-wrapper"><table>
+<tr><th>层级</th><th>推荐方案</th><th>理由</th></tr>
+<tr><td>前端框架</td><td>React Native + Expo</td><td>一套代码覆盖iOS+Android+Web，AI生态最成熟，文档最多</td></tr>
+<tr><td>后端框架</td><td>Node.js + Express</td><td>JavaScript全栈统一语言，降低学习成本，AI最熟悉</td></tr>
+<tr><td>数据库</td><td>PostgreSQL + Redis</td><td>PostgreSQL功能强大，Redis用于缓存和实时通信</td></tr>
+<tr><td>即时通信</td><td>WebSocket (Socket.io)</td><td>聊天、通知、在线状态等实时功能</td></tr>
+<tr><td>文件存储</td><td>阿里云OSS / 腾讯云COS</td><td>国内访问快，成本低，文档丰富</td></tr>
+<tr><td>认证服务</td><td>手机号 + 短信验证码</td><td>最简单的注册方式，降低用户注册门槛</td></tr>
+<tr><td>E2EE加密</td><td>Signal Protocol (libsignal)</td><td>业界标准，安全性最高</td></tr>
+<tr><td>部署</td><td>云服务器（阿里云/腾讯云）</td><td>初创阶段用云服务器，不用自建机房</td></tr>
+<tr><td>AI开发工具</td><td>Trae Solo Code模式</td><td>核心开发工具，AI辅助生成和调试代码</td></tr>
+</table></div>
+<div class="table-wrapper"><table>
+<tr><th>里程碑</th><th>时间</th><th>交仸物</th><th>验收标准</th></tr>
+<tr><td>M1：环境就绪</td><td>第3周末</td><td>能在手机上跑的底部导航骨架</td><td>手机上能看到4个Tab切换</td></tr>
+<tr><td>M2：核心功能完成</td><td>第7周末</td><td>完整的注册→聊天→发布流程</td><td>全流程走通，E2EE加密正常</td></tr>
+<tr><td>M3：功能完善</td><td>第10周末</td><td>所有P0+P1功能完成，UI统一</td><td>内测无严重Bug</td></tr>
+<tr><td>M4：正式上线</td><td>第12周末</td><td>应用商店上线，后端部署完成</td><td>用户可正常注册使用</td></tr>
+</table></div>
+<div class="table-wrapper"><table>
+<tr><th>阶段</th><th>推荐资源</th><th>用途</th></tr>
+<tr><td>第1-2周</td><td>《JavaScript高程设计》（MDN Web Docs）</td><td>理解JS基础语法</td></tr>
+<tr><td>第2-3周</td><td>React官方教程（react.dev）</td><td>理解React核心概念</td></tr>
+<tr><td>第3周</td><td>Expo官方教程（docs.expo.dev）</td><td>学会Expo开发流程</td></tr>
+<tr><td>第4-5周</td><td>Node.js官方文档 + Express教程</td><td>学会后端开发</td></tr>
+<tr><td>全程</td><td>Trae Solo Code模式</td><td>AI辅助编程，解决问题</td></tr>
+<tr><td>全程</td><td>GitHub Copilot / 社区论坛</td><td>搜索解决方案</td></tr>
+</table></div>
+<div class="table-wrapper"><table>
+<tr><th>风险</th><th>可能性</th><th>应对策略</th></tr>
+<tr><td>学习曲线比预期陡</td><td>高</td><td>第1-3周预留缓冲时间，不赶进度</td></tr>
+<tr><td>AI生成的代码有Bug</td><td>高</td><td>小步测试，每次只加一个小功能</td></tr>
+<tr><td>E2EE加密实现复杂</td><td>中</td><td>使用成熟的开源库，不自己写加密算法</td></tr>
+<tr><td>应用商店审核被拒</td><td>中</td><td>提前研读审核规则，确保合规</td></tr>
+<tr><td>服务器成本超预算</td><td>低</td><td>MVP阶段选择最低配置，后续按需扩展</td></tr>
+<tr><td>功能范围蓬胀</td><td>高</td><td>严格遵循MVP原则，每个功能都问“没有它能上线吗？”</td></tr>
+</table></div>
+  </div>
+</body>
+</html>
