@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -48,17 +48,22 @@ export default function PlazaScreen({ navigation }) {
     },
   ]);
 
-  const handleCreatePost = () => {
+  const handleCreatePost = useCallback(() => {
     // 导航到发布页面
     console.log('Create post');
-  };
+  }, []);
 
-  const handleLike = (postId) => {
+  const handleLike = useCallback((postId) => {
     // 模拟点赞功能
-    setPosts(posts.map(post => 
-      post.id === postId ? { ...post, likes: post.likes + 1 } : post
-    ));
-  };
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === postId ? { ...post, likes: post.likes + 1 } : post
+      )
+    );
+  }, []);
+
+  // 使用 useMemo 优化 posts 的渲染
+  const memoizedPosts = useMemo(() => posts, [posts]);
 
   return (
     <View style={styles.container}>
@@ -79,7 +84,7 @@ export default function PlazaScreen({ navigation }) {
           </View>
         </TouchableOpacity>
 
-        {posts.map((post) => (
+        {memoizedPosts.map((post) => (
           <View key={post.id} style={styles.postCard}>
             <View style={styles.postHeader}>
               <View style={styles.userInfo}>

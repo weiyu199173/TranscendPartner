@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function RegisterScreen({ navigation }) {
@@ -9,9 +9,51 @@ export default function RegisterScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    const phoneRegex = /^1[3-9]\d{9}$/;
+
+    if (!phone.trim()) {
+      newErrors.phone = '请输入手机号';
+    } else if (!phoneRegex.test(phone)) {
+      newErrors.phone = '请输入正确的手机号';
+    }
+
+    if (!verificationCode.trim()) {
+      newErrors.verificationCode = '请输入验证码';
+    } else if (verificationCode.length !== 6) {
+      newErrors.verificationCode = '验证码应为6位';
+    }
+
+    if (!password) {
+      newErrors.password = '请输入密码';
+    } else if (password.length < 6) {
+      newErrors.password = '密码长度至少为6位';
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = '请确认密码';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = '两次输入的密码不一致';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSendCode = () => {
-    if (!phone) return;
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phone.trim()) {
+      setErrors({ phone: '请输入手机号' });
+      return;
+    }
+    if (!phoneRegex.test(phone)) {
+      setErrors({ phone: '请输入正确的手机号' });
+      return;
+    }
+    setErrors({});
     setCountdown(60);
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -25,8 +67,9 @@ export default function RegisterScreen({ navigation }) {
   };
 
   const handleRegister = () => {
-    if (!phone || !verificationCode || !password || !confirmPassword) return;
-    if (password !== confirmPassword) return;
+    if (!validateForm()) {
+      return;
+    }
     
     setIsLoading(true);
     // 模拟注册过程
@@ -59,20 +102,21 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>手机号</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.phone && styles.inputError]}
               placeholder="请输入手机号"
               placeholderTextColor="#71767b"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
             />
+            {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>验证码</Text>
             <View style={styles.verificationContainer}>
               <TextInput
-                style={styles.verificationInput}
+                style={[styles.verificationInput, errors.verificationCode && styles.inputError]}
                 placeholder="请输入验证码"
                 placeholderTextColor="#71767b"
                 value={verificationCode}
@@ -89,30 +133,33 @@ export default function RegisterScreen({ navigation }) {
                 </Text>
               </TouchableOpacity>
             </View>
+            {errors.verificationCode && <Text style={styles.errorText}>{errors.verificationCode}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>密码</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.password && styles.inputError]}
               placeholder="请设置密码"
               placeholderTextColor="#71767b"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>确认密码</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.confirmPassword && styles.inputError]}
               placeholder="请再次输入密码"
               placeholderTextColor="#71767b"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
             />
+            {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
           </View>
 
           <TouchableOpacity 
@@ -210,6 +257,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: '#e7e9ea',
+  },
+  inputError: {
+    borderColor: '#f4212e',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#f4212e',
+    marginTop: 4,
   },
   verificationContainer: {
     flexDirection: 'row',

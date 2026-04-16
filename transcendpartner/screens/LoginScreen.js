@@ -1,13 +1,38 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function LoginScreen({ navigation }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    const phoneRegex = /^1[3-9]\d{9}$/;
+
+    if (!phone.trim()) {
+      newErrors.phone = '请输入手机号';
+    } else if (!phoneRegex.test(phone)) {
+      newErrors.phone = '请输入正确的手机号';
+    }
+
+    if (!password) {
+      newErrors.password = '请输入密码';
+    } else if (password.length < 6) {
+      newErrors.password = '密码长度至少为6位';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
     // 模拟登录过程
     setTimeout(() => {
@@ -29,7 +54,9 @@ export default function LoginScreen({ navigation }) {
       <StatusBar style="light" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.logoContainer}>
-          <View style={styles.pixelIcon} />
+          <View style={styles.pixelIcon}>
+            <Text style={{ fontSize: 32 }}>✨</Text>
+          </View>
           <Text style={styles.logoText}>超凡伙伴</Text>
           <Text style={styles.subtitle}>TranscendPartner</Text>
         </View>
@@ -40,25 +67,27 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>手机号</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.phone && styles.inputError]}
               placeholder="请输入手机号"
               placeholderTextColor="#71767b"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
             />
+            {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>密码</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.password && styles.inputError]}
               placeholder="请输入密码"
               placeholderTextColor="#71767b"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
 
           <TouchableOpacity style={styles.forgotPassword}>
@@ -134,9 +163,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     backgroundColor: '#e7e9ea',
-    mask: 'url(data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z%22/%3E%3C/svg%3E) center/contain',
-    WebkitMask: 'url(data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z%22/%3E%3C/svg%3E) center/contain',
+    borderRadius: 16,
     marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoText: {
     fontSize: 28,
@@ -175,6 +205,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: '#e7e9ea',
+  },
+  inputError: {
+    borderColor: '#f4212e',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#f4212e',
+    marginTop: 4,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
