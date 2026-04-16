@@ -1,7 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
+
+// 帖子卡片组件
+const PostCard = ({ post, onLike }) => {
+  return (
+    <View style={styles.postCard}>
+      <View style={styles.postHeader}>
+        <View style={styles.userInfo}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{post.user.avatar}</Text>
+          </View>
+          <View style={styles.userMeta}>
+            <Text style={styles.userName}>{post.user.name}</Text>
+            <View style={styles.userMetaRow}>
+              <Text style={styles.timestamp}>{post.timestamp}</Text>
+              {post.user.isAgent && (
+                <View style={styles.agentBadge}>
+                  <Text style={styles.agentBadgeText}>Agent Lv.{post.user.level}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.moreButton}>
+          <Ionicons name="ellipsis-horizontal" size={20} color="#71767b" />
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.postContent}>{post.content}</Text>
+      <View style={styles.postActions}>
+        <TouchableOpacity style={styles.actionButton} onPress={() => onLike(post.id)}>
+          <Ionicons name="heart-outline" size={20} color="#71767b" />
+          <Text style={styles.actionText}>{post.likes}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="chatbubble-outline" size={20} color="#71767b" />
+          <Text style={styles.actionText}>{post.comments}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="share-outline" size={20} color="#71767b" />
+          <Text style={styles.actionText}>{post.shares}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="bookmark-outline" size={20} color="#71767b" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 export default function PlazaScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
@@ -26,106 +73,73 @@ export default function PlazaScreen({ navigation }) {
     fetchPosts();
   }, []);
 
-  const handleCreatePost = () => {
+  const handleCreatePost = useCallback(() => {
     // 导航到发布页面
     navigation.navigate('CreatePost');
-  };
+  }, [navigation]);
 
-  const handleLike = async (postId) => {
+  const handleLike = useCallback(async (postId) => {
     try {
       const response = await api.plaza.likePost(postId);
       if (response.success) {
-        setPosts(posts.map(post => 
-          post.id === postId ? { ...post, likes: response.data.likes } : post
-        ));
+        // 优化状态更新，只更新被点赞的帖子
+        setPosts(prevPosts => 
+          prevPosts.map(post => 
+            post.id === postId ? { ...post, likes: response.data.likes } : post
+          )
+        );
       }
     } catch (error) {
       console.error('点赞失败:', error);
     }
-  };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1d9bf0" />
+        <Text style={styles.loadingText}>加载中...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#1d9bf0" />
-          <Text style={styles.loadingText}>加载中...</Text>
+      {/* 固定头部 */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>发现</Text>
+        <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Search')}>
+          <Ionicons name="search" size={20} color="#71767b" />
+        </TouchableOpacity>
+      </View>
+
+      {/* 固定创建帖子按钮 */}
+      <TouchableOpacity style={styles.createPostButton} onPress={handleCreatePost}>
+        <View style={styles.createPostContent}>
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarText}>👤</Text>
+          </View>
+          <Text style={styles.createPostText}>分享你的想法...</Text>
         </View>
-      ) : (
-        <>
-          <ScrollView style={styles.scrollView}>
-            <View style={styles.header}>
-          <Text style={styles.headerTitle}>发现</Text>
-          <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Search')}>
-            <Ionicons name="search" size={20} color="#71767b" />
-          </TouchableOpacity>
-        </View>
+      </TouchableOpacity>
 
-            <TouchableOpacity style={styles.createPostButton} onPress={handleCreatePost}>
-              <View style={styles.createPostContent}>
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarText}>👤</Text>
-                </View>
-                <Text style={styles.createPostText}>分享你的想法...</Text>
-              </View>
-            </TouchableOpacity>
+      {/* 可滚动的帖子列表 */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {posts.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>暂无动态</Text>
+          </View>
+        ) : (
+          posts.map((post) => (
+            <PostCard key={post.id} post={post} onLike={handleLike} />
+          ))
+        )}
+      </ScrollView>
 
-            {posts.length === 0 ? (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>暂无动态</Text>
-              </View>
-            ) : (
-              posts.map((post) => (
-                <View key={post.id} style={styles.postCard}>
-                  <View style={styles.postHeader}>
-                    <View style={styles.userInfo}>
-                      <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>{post.user.avatar}</Text>
-                      </View>
-                      <View style={styles.userMeta}>
-                        <Text style={styles.userName}>{post.user.name}</Text>
-                        <View style={styles.userMetaRow}>
-                          <Text style={styles.timestamp}>{post.timestamp}</Text>
-                          {post.user.isAgent && (
-                            <View style={styles.agentBadge}>
-                              <Text style={styles.agentBadgeText}>Agent Lv.{post.user.level}</Text>
-                            </View>
-                          )}
-                        </View>
-                      </View>
-                    </View>
-                    <TouchableOpacity style={styles.moreButton}>
-                      <Ionicons name="ellipsis-horizontal" size={20} color="#71767b" />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.postContent}>{post.content}</Text>
-                  <View style={styles.postActions}>
-                    <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(post.id)}>
-                      <Ionicons name="heart-outline" size={20} color="#71767b" />
-                      <Text style={styles.actionText}>{post.likes}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                      <Ionicons name="chatbubble-outline" size={20} color="#71767b" />
-                      <Text style={styles.actionText}>{post.comments}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                      <Ionicons name="share-outline" size={20} color="#71767b" />
-                      <Text style={styles.actionText}>{post.shares}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
-                      <Ionicons name="bookmark-outline" size={20} color="#71767b" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))
-            )}
-          </ScrollView>
-
-          <TouchableOpacity style={styles.fab} onPress={handleCreatePost}>
-            <Ionicons name="add" size={24} color="#000" />
-          </TouchableOpacity>
-        </>
-      )}
+      {/* 悬浮按钮 */}
+      <TouchableOpacity style={styles.fab} onPress={handleCreatePost}>
+        <Ionicons name="add" size={24} color="#000" />
+      </TouchableOpacity>
     </View>
   );
 }

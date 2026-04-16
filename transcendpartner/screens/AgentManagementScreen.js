@@ -1,29 +1,30 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import api from '../api';
 
 export default function AgentManagementScreen({ navigation }) {
-  // 模拟Agent数据
-  const agents = [
-    {
-      id: 1,
-      name: '小超越',
-      type: 'twin',
-      level: 2,
-      status: 'active',
-      personality: '外向、幽默、理性',
-      interests: '音乐、科技、旅行',
-    },
-    {
-      id: 2,
-      name: '工作助手',
-      type: 'super',
-      level: 1,
-      status: 'active',
-      personality: '专业、高效、逻辑',
-      interests: '编程、数据分析、项目管理',
-    },
-  ];
+  const [agents, setAgents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // 加载Agent列表
+    loadAgents();
+  }, []);
+
+  const loadAgents = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.agents.getAgents();
+      if (response.success) {
+        setAgents(response.data);
+      }
+    } catch (error) {
+      console.error('加载Agent失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateAgent = () => {
     navigation.navigate('AgentCreate');
@@ -48,9 +49,20 @@ export default function AgentManagementScreen({ navigation }) {
         {
           text: '删除',
           style: 'destructive',
-          onPress: () => {
-            // 模拟删除Agent
-            console.log('Delete agent:', agentId);
+          onPress: async () => {
+            try {
+              const response = await api.agents.deleteAgent(agentId);
+              if (response.success) {
+                Alert.alert('删除成功', 'Agent已删除');
+                // 重新加载Agent列表
+                loadAgents();
+              } else {
+                Alert.alert('删除失败', '请稍后重试');
+              }
+            } catch (error) {
+              console.error('删除Agent失败:', error);
+              Alert.alert('删除失败', '网络错误，请稍后重试');
+            }
           },
         },
       ]
@@ -81,60 +93,81 @@ export default function AgentManagementScreen({ navigation }) {
           <Text style={styles.sectionTitle}>我的Agent</Text>
           <Text style={styles.sectionSubtitle}>您当前拥有 {agents.length}/3 个Agent</Text>
 
-          {agents.map((agent) => (
-            <View key={agent.id} style={styles.agentCard}>
-              <View style={styles.agentHeader}>
-                <View style={styles.agentInfo}>
-                  <Text style={styles.agentName}>{agent.name}</Text>
-                  <View style={styles.agentMeta}>
-                    <Text style={styles.agentType}>
-                      {agent.type === 'twin' ? '🧬 孪生伙伴' : '⚡ 超级伙伴'}
-                    </Text>
-                    <Text style={styles.agentLevel}>Lv.{agent.level}</Text>
-                    <View style={[styles.agentStatus, agent.status === 'active' ? styles.agentStatusActive : styles.agentStatusInactive]}>
-                      <Text style={styles.agentStatusText}>
-                        {agent.status === 'active' ? '活跃' : '休眠'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.agentActions}>
-                  <TouchableOpacity 
-                    style={styles.actionButton}
-                    onPress={() => handleAgentEdit(agent)}
-                  >
-                    <Text style={styles.actionButtonText}>编辑</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.actionButton}
-                    onPress={() => handleAgentDelete(agent.id)}
-                  >
-                    <Text style={styles.actionButtonText}>删除</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              <View style={styles.agentDetails}>
-                <Text style={styles.detailLabel}>性格特质:</Text>
-                <Text style={styles.detailValue}>{agent.personality}</Text>
-                <Text style={styles.detailLabel}>兴趣爱好:</Text>
-                <Text style={styles.detailValue}>{agent.interests}</Text>
-              </View>
-              <TouchableOpacity 
-                style={styles.viewDetailButton}
-                onPress={() => handleAgentDetail(agent)}
-              >
-                <Text style={styles.viewDetailText}>查看详情 →</Text>
-              </TouchableOpacity>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#1d9bf0" />
+              <Text style={styles.loadingText}>加载Agent中...</Text>
             </View>
-          ))}
+          ) : (
+            <>
+              {agents.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>暂无Agent</Text>
+                  <TouchableOpacity 
+                    style={styles.createButton}
+                    onPress={handleCreateAgent}
+                  >
+                    <Text style={styles.createButtonText}>+ 创建新Agent</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                agents.map((agent) => (
+                  <View key={agent.id} style={styles.agentCard}>
+                    <View style={styles.agentHeader}>
+                      <View style={styles.agentInfo}>
+                        <Text style={styles.agentName}>{agent.name}</Text>
+                        <View style={styles.agentMeta}>
+                          <Text style={styles.agentType}>
+                            {agent.type === 'twin' ? '🧬 孪生伙伴' : '⚡ 超级伙伴'}
+                          </Text>
+                          <Text style={styles.agentLevel}>Lv.{agent.level}</Text>
+                          <View style={[styles.agentStatus, agent.status === 'active' ? styles.agentStatusActive : styles.agentStatusInactive]}>
+                            <Text style={styles.agentStatusText}>
+                              {agent.status === 'active' ? '活跃' : '休眠'}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.agentActions}>
+                        <TouchableOpacity 
+                          style={styles.actionButton}
+                          onPress={() => handleAgentEdit(agent)}
+                        >
+                          <Text style={styles.actionButtonText}>编辑</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={styles.actionButton}
+                          onPress={() => handleAgentDelete(agent.id)}
+                        >
+                          <Text style={styles.actionButtonText}>删除</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    <View style={styles.agentDetails}>
+                      <Text style={styles.detailLabel}>性格特质:</Text>
+                      <Text style={styles.detailValue}>{agent.personality}</Text>
+                      <Text style={styles.detailLabel}>兴趣爱好:</Text>
+                      <Text style={styles.detailValue}>{agent.interests}</Text>
+                    </View>
+                    <TouchableOpacity 
+                      style={styles.viewDetailButton}
+                      onPress={() => handleAgentDetail(agent)}
+                    >
+                      <Text style={styles.viewDetailText}>查看详情 →</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
 
-          {agents.length < 3 && (
-            <TouchableOpacity 
-              style={styles.createButton}
-              onPress={handleCreateAgent}
-            >
-              <Text style={styles.createButtonText}>+ 创建新Agent</Text>
-            </TouchableOpacity>
+              {agents.length < 3 && (
+                <TouchableOpacity 
+                  style={styles.createButton}
+                  onPress={handleCreateAgent}
+                >
+                  <Text style={styles.createButtonText}>+ 创建新Agent</Text>
+                </TouchableOpacity>
+              )}
+            </>
           )}
 
           <View style={styles.guideContainer}>

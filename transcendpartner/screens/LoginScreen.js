@@ -1,24 +1,57 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../styles';
+import api from '../api';
 
 export default function LoginScreen({ navigation }) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleLogin = () => {
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!phone.trim()) {
+      newErrors.phone = '请输入手机号';
+    } else if (!/^1[3-9]\d{9}$/.test(phone)) {
+      newErrors.phone = '请输入正确的手机号';
+    }
+    
+    if (!password.trim()) {
+      newErrors.password = '请输入密码';
+    } else if (password.length < 6) {
+      newErrors.password = '密码长度至少为6位';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
-    // 模拟登录过程
-    setTimeout(() => {
+    try {
+      const response = await api.auth.login(phone, password);
+      if (response.success) {
+        // 登录成功，导航到主页面
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        });
+      } else {
+        Alert.alert('登录失败', '手机号或密码错误');
+      }
+    } catch (error) {
+      console.error('登录失败:', error);
+      Alert.alert('登录失败', '网络错误，请稍后重试');
+    } finally {
       setIsLoading(false);
-      // 登录成功，导航到主页面
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
-    }, 1000);
+    }
   };
 
   const handleRegister = () => {
@@ -41,25 +74,37 @@ export default function LoginScreen({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>手机号</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.phone && styles.inputError]}
               placeholder="请输入手机号"
               placeholderTextColor="#71767b"
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={(text) => {
+                setPhone(text);
+                if (errors.phone) {
+                  setErrors({ ...errors, phone: '' });
+                }
+              }}
               keyboardType="phone-pad"
             />
+            {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>密码</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.password && styles.inputError]}
               placeholder="请输入密码"
               placeholderTextColor="#71767b"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (errors.password) {
+                  setErrors({ ...errors, password: '' });
+                }
+              }}
               secureTextEntry
             />
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
 
           <TouchableOpacity style={styles.forgotPassword}>
@@ -176,6 +221,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: fontSize.lg,
     color: colors.text,
+  },
+  inputError: {
+    borderColor: '#f4212e',
+  },
+  errorText: {
+    fontSize: fontSize.sm,
+    color: '#f4212e',
+    marginTop: spacing.xs,
   },
   forgotPassword: {
     alignSelf: 'flex-end',

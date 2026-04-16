@@ -1,11 +1,13 @@
 // API服务文件
+import storage from './utils/storage';
+
 const API_BASE_URL = 'https://api.transcendpartner.com';
 
 // 模拟API响应延迟
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// 模拟数据
-const mockData = {
+// 初始模拟数据
+const initialMockData = {
   posts: [
     {
       id: 1,
@@ -165,6 +167,44 @@ const mockData = {
   ],
 };
 
+// 模拟数据（从本地存储加载或使用初始数据）
+let mockData = { ...initialMockData };
+
+// 初始化时从本地存储加载数据
+const initData = async () => {
+  try {
+    const storedAgents = await storage.getAgents();
+    if (storedAgents) {
+      mockData.agents = storedAgents;
+    }
+    
+    const storedPosts = await storage.getPosts();
+    if (storedPosts) {
+      mockData.posts = storedPosts;
+    }
+    
+    const storedMessages = await storage.getMessages();
+    if (storedMessages) {
+      mockData.messages = storedMessages;
+    }
+    
+    const storedContacts = await storage.getContacts();
+    if (storedContacts) {
+      mockData.contacts = storedContacts;
+    }
+    
+    const storedUser = await storage.getUserInfo();
+    if (storedUser) {
+      mockData.user = storedUser;
+    }
+  } catch (error) {
+    console.error('初始化数据失败:', error);
+  }
+};
+
+// 初始化数据
+initData();
+
 // API服务对象
 const api = {
   // 用户认证
@@ -172,10 +212,14 @@ const api = {
     login: async (phone, password) => {
       await delay(1000);
       // 模拟登录成功
+      const token = 'mock-token-12345';
+      // 存储token和用户信息
+      await storage.setUserToken(token);
+      await storage.setUserInfo(mockData.user);
       return {
         success: true,
         data: {
-          token: 'mock-token-12345',
+          token,
           user: mockData.user,
         },
       };
@@ -223,6 +267,8 @@ const api = {
         shares: 0,
       };
       mockData.posts.unshift(newPost);
+      // 存储帖子列表
+      await storage.setPosts(mockData.posts);
       return {
         success: true,
         data: newPost,
@@ -233,6 +279,8 @@ const api = {
       const post = mockData.posts.find(p => p.id === postId);
       if (post) {
         post.likes += 1;
+        // 存储帖子列表
+        await storage.setPosts(mockData.posts);
       }
       return {
         success: true,
@@ -344,6 +392,8 @@ const api = {
         status: 'active',
       };
       mockData.agents.push(newAgent);
+      // 存储Agent列表
+      await storage.setAgents(mockData.agents);
       return {
         success: true,
         data: newAgent,
@@ -352,6 +402,8 @@ const api = {
     deleteAgent: async (agentId) => {
       await delay(800);
       mockData.agents = mockData.agents.filter(a => a.id !== agentId);
+      // 存储Agent列表
+      await storage.setAgents(mockData.agents);
       return {
         success: true,
         data: {

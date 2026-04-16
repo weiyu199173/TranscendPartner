@@ -1,60 +1,67 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../api';
 
 export default function ChatScreen({ route, navigation }) {
   const { user } = route.params;
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: '你好！',
-      sender: 'user',
-      timestamp: '10:00',
-    },
-    {
-      id: 2,
-      text: '你好，有什么可以帮助你的吗？',
-      sender: 'agent',
-      timestamp: '10:01',
-    },
-    {
-      id: 3,
-      text: '今天天气怎么样？',
-      sender: 'user',
-      timestamp: '10:02',
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const scrollViewRef = useRef(null);
+
+  useEffect(() => {
+    // 加载聊天记录
+    loadMessages();
+  }, []);
 
   useEffect(() => {
     // 自动滚动到底部
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  const handleSend = () => {
+  const loadMessages = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.messages.getChatMessages(user.id);
+      if (response.success) {
+        setMessages(response.data);
+      }
+    } catch (error) {
+      console.error('加载消息失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSend = async () => {
     if (!inputText.trim()) return;
     
-    const newMessage = {
-      id: messages.length + 1,
-      text: inputText,
-      sender: 'user',
-      timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-    };
-    
-    setMessages([...messages, newMessage]);
-    setInputText('');
-    
-    // 模拟回复
-    setTimeout(() => {
-      const replyMessage = {
-        id: messages.length + 2,
-        text: '这是一条自动回复消息',
-        sender: 'agent',
-        timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages(prev => [...prev, replyMessage]);
-    }, 1000);
+    setIsSending(true);
+    try {
+      const response = await api.messages.sendMessage(user.id, inputText);
+      if (response.success) {
+        const newMessage = response.data;
+        setMessages(prev => [...prev, newMessage]);
+        setInputText('');
+        
+        // 模拟回复
+        setTimeout(() => {
+          const replyMessage = {
+            id: Math.floor(Math.random() * 1000),
+            text: '这是一条自动回复消息',
+            sender: 'agent',
+            timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, replyMessage]);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('发送消息失败:', error);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -80,36 +87,49 @@ export default function ChatScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView 
-        ref={scrollViewRef}
-        style={styles.messageList}
-        contentContainerStyle={styles.messageListContent}
-      >
-        {messages.map((message) => (
-          <View 
-            key={message.id} 
-            style={[
-              styles.messageContainer,
-              message.sender === 'user' ? styles.userMessageContainer : styles.agentMessageContainer
-            ]}
-          >
-            <View 
-              style={[
-                styles.messageBubble,
-                message.sender === 'user' ? styles.userMessageBubble : styles.agentMessageBubble
-              ]}
-            >
-              <Text style={[
-                styles.messageText,
-                message.sender === 'user' ? styles.userMessageText : styles.agentMessageText
-              ]}>
-                {message.text}
-              </Text>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#1d9bf0" />
+          <Text style={styles.loadingText}>加载消息中...</Text>
+        </View>
+      ) : (
+        <ScrollView 
+          ref={scrollViewRef}
+          style={styles.messageList}
+          contentContainerStyle={styles.messageListContent}
+        >
+          {messages.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>暂无消息</Text>
             </View>
-            <Text style={styles.messageTimestamp}>{message.timestamp}</Text>
-          </View>
-        ))}
-      </ScrollView>
+          ) : (
+            messages.map((message) => (
+              <View 
+                key={message.id} 
+                style={[
+                  styles.messageContainer,
+                  message.sender === 'user' ? styles.userMessageContainer : styles.agentMessageContainer
+                ]}
+              >
+                <View 
+                  style={[
+                    styles.messageBubble,
+                    message.sender === 'user' ? styles.userMessageBubble : styles.agentMessageBubble
+                  ]}
+                >
+                  <Text style={[
+                    styles.messageText,
+                    message.sender === 'user' ? styles.userMessageText : styles.agentMessageText
+                  ]}>
+                    {message.text}
+                  </Text>
+                </View>
+                <Text style={styles.messageTimestamp}>{message.timestamp}</Text>
+              </View>
+            ))
+          )}
+        </ScrollView>
+      )}
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.attachButton}>
@@ -123,11 +143,15 @@ export default function ChatScreen({ route, navigation }) {
           onChangeText={setInputText}
         />
         <TouchableOpacity 
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+          style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]}
           onPress={handleSend}
-          disabled={!inputText.trim()}
+          disabled={!inputText.trim() || isSending}
         >
-          <Ionicons name="send" size={20} color={inputText.trim() ? '#000' : '#71767b'} />
+          {isSending ? (
+            <ActivityIndicator size="small" color="#71767b" />
+          ) : (
+            <Ionicons name="send" size={20} color={inputText.trim() ? '#000' : '#71767b'} />
+          )}
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -250,5 +274,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a0a0a',
     borderWidth: 1,
     borderColor: '#1a1a1a',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#71767b',
+    marginTop: 12,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 48,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#71767b',
   },
 });

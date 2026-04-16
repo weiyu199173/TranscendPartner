@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../api';
 
 const MAX_CONTENT_LENGTH = 200;
 
@@ -8,16 +9,25 @@ export default function CreatePostScreen({ navigation }) {
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!content.trim()) return;
     
     setIsLoading(true);
-    // 模拟发布过程
-    setTimeout(() => {
+    try {
+      const response = await api.plaza.createPost(content);
+      if (response.success) {
+        Alert.alert('发布成功', '您的动态已发布');
+        // 发布成功，导航回广场页面
+        navigation.goBack();
+      } else {
+        Alert.alert('发布失败', '请稍后重试');
+      }
+    } catch (error) {
+      console.error('发布失败:', error);
+      Alert.alert('发布失败', '网络错误，请稍后重试');
+    } finally {
       setIsLoading(false);
-      // 发布成功，导航回广场页面
-      navigation.goBack();
-    }, 1000);
+    }
   };
 
   return (

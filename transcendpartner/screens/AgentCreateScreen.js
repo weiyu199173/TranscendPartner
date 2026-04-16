@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import api from '../api';
 
 export default function AgentCreateScreen({ navigation }) {
   const [agentType, setAgentType] = useState('twin'); // twin or super
@@ -9,17 +10,54 @@ export default function AgentCreateScreen({ navigation }) {
   const [interests, setInterests] = useState('');
   const [languageStyle, setLanguageStyle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleCreateAgent = () => {
-    if (!name || !personality) return;
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!name.trim()) {
+      newErrors.name = '请输入Agent名字';
+    } else if (name.length < 2) {
+      newErrors.name = '名字长度至少为2个字符';
+    }
+    
+    if (!personality.trim()) {
+      newErrors.personality = '请输入性格特质';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleCreateAgent = async () => {
+    if (!validateForm()) {
+      return;
+    }
     
     setIsLoading(true);
-    // 模拟创建Agent过程
-    setTimeout(() => {
+    try {
+      const agentData = {
+        name,
+        type: agentType,
+        personality,
+        interests: interests || '',
+        languageStyle: languageStyle || '',
+      };
+      
+      const response = await api.agents.createAgent(agentData);
+      if (response.success) {
+        Alert.alert('创建成功', 'Agent创建成功，正在审核中');
+        // 创建成功，导航到Agent管理页面
+        navigation.navigate('AgentManagement');
+      } else {
+        Alert.alert('创建失败', '请稍后重试');
+      }
+    } catch (error) {
+      console.error('创建Agent失败:', error);
+      Alert.alert('创建失败', '网络错误，请稍后重试');
+    } finally {
       setIsLoading(false);
-      // 创建成功，导航到Agent管理页面
-      navigation.navigate('AgentManagement');
-    }, 1000);
+    }
   };
 
   return (
@@ -68,23 +106,35 @@ export default function AgentCreateScreen({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Agent名字</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.name && styles.inputError]}
               placeholder="请输入Agent名字"
               placeholderTextColor="#71767b"
               value={name}
-              onChangeText={setName}
+              onChangeText={(text) => {
+                setName(text);
+                if (errors.name) {
+                  setErrors({ ...errors, name: '' });
+                }
+              }}
             />
+            {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>性格特质</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, errors.personality && styles.inputError]}
               placeholder="例如：外向、幽默、理性"
               placeholderTextColor="#71767b"
               value={personality}
-              onChangeText={setPersonality}
+              onChangeText={(text) => {
+                setPersonality(text);
+                if (errors.personality) {
+                  setErrors({ ...errors, personality: '' });
+                }
+              }}
             />
+            {errors.personality && <Text style={styles.errorText}>{errors.personality}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -258,6 +308,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: '#e7e9ea',
+  },
+  inputError: {
+    borderColor: '#f4212e',
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#f4212e',
+    marginTop: 4,
   },
   llmContainer: {
     marginVertical: 24,
