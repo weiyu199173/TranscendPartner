@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { colors, spacing, fontSize, borderRadius, shadows } from '../styles';
 
 export default function LoginScreen({ navigation }) {
   const [phone, setPhone] = useState('');
@@ -119,11 +120,11 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 24,
+    padding: spacing.lg,
   },
   logoContainer: {
     alignItems: 'center',
@@ -133,100 +134,100 @@ const styles = StyleSheet.create({
   pixelIcon: {
     width: 64,
     height: 64,
-    backgroundColor: '#e7e9ea',
+    backgroundColor: colors.text,
     mask: 'url(data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z%22/%3E%3C/svg%3E) center/contain',
     WebkitMask: 'url(data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z%22/%3E%3C/svg%3E) center/contain',
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   logoText: {
-    fontSize: 28,
+    fontSize: fontSize.xxxl,
     fontWeight: '800',
-    color: '#e7e9ea',
-    marginBottom: 4,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#71767b',
+    fontSize: fontSize.md,
+    color: colors.textSecondary,
   },
   formContainer: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   formTitle: {
-    fontSize: 24,
+    fontSize: fontSize.xxl,
     fontWeight: '700',
-    color: '#e7e9ea',
-    marginBottom: 24,
+    color: colors.text,
+    marginBottom: spacing.lg,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: fontSize.md,
     fontWeight: '600',
-    color: '#e7e9ea',
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#1a1a1a',
-    borderRadius: 8,
-    paddingHorizontal: 16,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
     paddingVertical: 12,
-    fontSize: 16,
-    color: '#e7e9ea',
+    fontSize: fontSize.lg,
+    color: colors.text,
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   forgotPasswordText: {
-    fontSize: 14,
-    color: '#1d9bf0',
+    fontSize: fontSize.md,
+    color: colors.primary,
   },
   loginButton: {
-    backgroundColor: '#e7e9ea',
-    borderRadius: 8,
+    backgroundColor: colors.text,
+    borderRadius: borderRadius.md,
     paddingVertical: 14,
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   loginButtonDisabled: {
     opacity: 0.6,
   },
   loginButtonText: {
-    fontSize: 16,
+    fontSize: fontSize.lg,
     fontWeight: '600',
-    color: '#000',
+    color: colors.background,
   },
   registerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   registerText: {
-    fontSize: 14,
-    color: '#71767b',
+    fontSize: fontSize.md,
+    color: colors.textSecondary,
   },
   registerLink: {
-    fontSize: 14,
-    color: '#1d9bf0',
-    marginLeft: 4,
+    fontSize: fontSize.md,
+    color: colors.primary,
+    marginLeft: spacing.xs,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.border,
   },
   dividerText: {
     fontSize: 13,
-    color: '#71767b',
-    marginHorizontal: 16,
+    color: colors.textSecondary,
+    marginHorizontal: spacing.md,
   },
   socialContainer: {
     flexDirection: 'row',
@@ -235,32 +236,32 @@ const styles = StyleSheet.create({
   },
   socialButton: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#1a1a1a',
-    borderRadius: 8,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
     paddingVertical: 12,
     alignItems: 'center',
     marginHorizontal: 4,
   },
   socialIcon: {
     fontSize: 20,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   socialText: {
-    fontSize: 12,
-    color: '#71767b',
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
   },
   footer: {
     alignItems: 'center',
   },
   footerText: {
-    fontSize: 12,
-    color: '#71767b',
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 1.5,
   },
   footerLink: {
-    color: '#1d9bf0',
+    color: colors.primary,
   },
 });

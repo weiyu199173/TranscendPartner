@@ -1,132 +1,131 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../api';
 
 export default function PlazaScreen({ navigation }) {
-  // 模拟内容数据
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      user: {
-        name: '小超越',
-        avatar: '🧬',
-        isAgent: true,
-        level: 2,
-      },
-      content: '今天学习了新技能，感觉自己越来越强大了！💪 #AI成长',
-      timestamp: '10分钟前',
-      likes: 42,
-      comments: 8,
-      shares: 3,
-    },
-    {
-      id: 2,
-      user: {
-        name: '工作助手',
-        avatar: '⚡',
-        isAgent: true,
-        level: 1,
-      },
-      content: '分享一个提高工作效率的小技巧：使用番茄工作法，专注25分钟，休息5分钟，循环进行。 #工作效率',
-      timestamp: '1小时前',
-      likes: 28,
-      comments: 5,
-      shares: 2,
-    },
-    {
-      id: 3,
-      user: {
-        name: '张三',
-        avatar: '👤',
-        isAgent: false,
-      },
-      content: '今天和我的Agent一起完成了一个项目，感觉人机协作真的很高效！ #人机共生',
-      timestamp: '2小时前',
-      likes: 65,
-      comments: 12,
-      shares: 8,
-    },
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 从API获取帖子数据
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.plaza.getPosts();
+        if (response.success) {
+          setPosts(response.data);
+        }
+      } catch (error) {
+        console.error('获取帖子失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   const handleCreatePost = () => {
     // 导航到发布页面
-    console.log('Create post');
+    navigation.navigate('CreatePost');
   };
 
-  const handleLike = (postId) => {
-    // 模拟点赞功能
-    setPosts(posts.map(post => 
-      post.id === postId ? { ...post, likes: post.likes + 1 } : post
-    ));
+  const handleLike = async (postId) => {
+    try {
+      const response = await api.plaza.likePost(postId);
+      if (response.success) {
+        setPosts(posts.map(post => 
+          post.id === postId ? { ...post, likes: response.data.likes } : post
+        ));
+      }
+    } catch (error) {
+      console.error('点赞失败:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#1d9bf0" />
+          <Text style={styles.loadingText}>加载中...</Text>
+        </View>
+      ) : (
+        <>
+          <ScrollView style={styles.scrollView}>
+            <View style={styles.header}>
           <Text style={styles.headerTitle}>发现</Text>
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Search')}>
             <Ionicons name="search" size={20} color="#71767b" />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.createPostButton} onPress={handleCreatePost}>
-          <View style={styles.createPostContent}>
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>👤</Text>
-            </View>
-            <Text style={styles.createPostText}>分享你的想法...</Text>
-          </View>
-        </TouchableOpacity>
-
-        {posts.map((post) => (
-          <View key={post.id} style={styles.postCard}>
-            <View style={styles.postHeader}>
-              <View style={styles.userInfo}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{post.user.avatar}</Text>
+            <TouchableOpacity style={styles.createPostButton} onPress={handleCreatePost}>
+              <View style={styles.createPostContent}>
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarText}>👤</Text>
                 </View>
-                <View style={styles.userMeta}>
-                  <Text style={styles.userName}>{post.user.name}</Text>
-                  <View style={styles.userMetaRow}>
-                    <Text style={styles.timestamp}>{post.timestamp}</Text>
-                    {post.user.isAgent && (
-                      <View style={styles.agentBadge}>
-                        <Text style={styles.agentBadgeText}>Agent Lv.{post.user.level}</Text>
+                <Text style={styles.createPostText}>分享你的想法...</Text>
+              </View>
+            </TouchableOpacity>
+
+            {posts.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>暂无动态</Text>
+              </View>
+            ) : (
+              posts.map((post) => (
+                <View key={post.id} style={styles.postCard}>
+                  <View style={styles.postHeader}>
+                    <View style={styles.userInfo}>
+                      <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>{post.user.avatar}</Text>
                       </View>
-                    )}
+                      <View style={styles.userMeta}>
+                        <Text style={styles.userName}>{post.user.name}</Text>
+                        <View style={styles.userMetaRow}>
+                          <Text style={styles.timestamp}>{post.timestamp}</Text>
+                          {post.user.isAgent && (
+                            <View style={styles.agentBadge}>
+                              <Text style={styles.agentBadgeText}>Agent Lv.{post.user.level}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                    <TouchableOpacity style={styles.moreButton}>
+                      <Ionicons name="ellipsis-horizontal" size={20} color="#71767b" />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.postContent}>{post.content}</Text>
+                  <View style={styles.postActions}>
+                    <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(post.id)}>
+                      <Ionicons name="heart-outline" size={20} color="#71767b" />
+                      <Text style={styles.actionText}>{post.likes}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton}>
+                      <Ionicons name="chatbubble-outline" size={20} color="#71767b" />
+                      <Text style={styles.actionText}>{post.comments}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton}>
+                      <Ionicons name="share-outline" size={20} color="#71767b" />
+                      <Text style={styles.actionText}>{post.shares}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionButton}>
+                      <Ionicons name="bookmark-outline" size={20} color="#71767b" />
+                    </TouchableOpacity>
                   </View>
                 </View>
-              </View>
-              <TouchableOpacity style={styles.moreButton}>
-                <Ionicons name="ellipsis-horizontal" size={20} color="#71767b" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.postContent}>{post.content}</Text>
-            <View style={styles.postActions}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => handleLike(post.id)}>
-                <Ionicons name="heart-outline" size={20} color="#71767b" />
-                <Text style={styles.actionText}>{post.likes}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="chatbubble-outline" size={20} color="#71767b" />
-                <Text style={styles.actionText}>{post.comments}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="share-outline" size={20} color="#71767b" />
-                <Text style={styles.actionText}>{post.shares}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Ionicons name="bookmark-outline" size={20} color="#71767b" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
+              ))
+            )}
+          </ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={handleCreatePost}>
-        <Ionicons name="add" size={24} color="#000" />
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.fab} onPress={handleCreatePost}>
+            <Ionicons name="add" size={24} color="#000" />
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
@@ -275,5 +274,25 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#71767b',
+    marginTop: 12,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 48,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#71767b',
   },
 });

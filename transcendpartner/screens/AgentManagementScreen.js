@@ -31,7 +31,7 @@ export default function AgentManagementScreen({ navigation }) {
 
   const handleAgentDetail = (agent) => {
     // 导航到Agent详情页面
-    console.log('Agent detail:', agent);
+    navigation.navigate('AgentDetail', { agentId: agent.id });
   };
 
   const handleAgentEdit = (agent) => {
