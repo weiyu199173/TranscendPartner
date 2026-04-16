@@ -76,9 +76,14 @@ export default function ContactsScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>通讯录</Text>
-        <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="add" size={24} color="#1d9bf0" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.headerButton} onPress={() => navigation.navigate('Search')}>
+            <Ionicons name="search" size={24} color="#71767b" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton}>
+            <Ionicons name="add" size={24} color="#1d9bf0" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.categoryTabs}>
@@ -142,6 +147,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#e7e9ea',
+  },
+  headerActions: {
+    flexDirection: 'row',
+  },
+  headerButton: {
+    padding: 8,
+    marginRight: 8,
   },
   addButton: {
     padding: 8,

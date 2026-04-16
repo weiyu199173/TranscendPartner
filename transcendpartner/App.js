@@ -5,16 +5,22 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // 导入页面组件
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import PlazaScreen from './screens/PlazaScreen';
+import CreatePostScreen from './screens/CreatePostScreen';
+import SearchScreen from './screens/SearchScreen';
 import MessagesScreen from './screens/MessagesScreen';
+import ChatScreen from './screens/ChatScreen';
 import ContactsScreen from './screens/ContactsScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
 import AgentCreateScreen from './screens/AgentCreateScreen';
 import AgentManagementScreen from './screens/AgentManagementScreen';
+import AgentDetailScreen from './screens/AgentDetailScreen';
 import GuardianConsoleScreen from './screens/GuardianConsoleScreen';
 import ContentModerationScreen from './screens/ContentModerationScreen';
 
@@ -95,22 +101,29 @@ function MainTabs() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen name="AgentCreate" component={AgentCreateScreen} />
-        <Stack.Screen name="AgentManagement" component={AgentManagementScreen} />
-        <Stack.Screen name="GuardianConsole" component={GuardianConsoleScreen} />
-        <Stack.Screen name="ContentModeration" component={ContentModerationScreen} />
-      </Stack.Navigator>
-      <StatusBar style="light" />
-    </NavigationContainer>
+    <ErrorBoundary>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+          <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen name="Chat" component={ChatScreen} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="AgentCreate" component={AgentCreateScreen} />
+          <Stack.Screen name="AgentManagement" component={AgentManagementScreen} />
+          <Stack.Screen name="AgentDetail" component={AgentDetailScreen} />
+          <Stack.Screen name="GuardianConsole" component={GuardianConsoleScreen} />
+          <Stack.Screen name="ContentModeration" component={ContentModerationScreen} />
+        </Stack.Navigator>
+        <StatusBar style="light" />
+      </NavigationContainer>
+    </ErrorBoundary>
   );
 }
 

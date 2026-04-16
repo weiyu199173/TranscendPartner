@@ -34,7 +34,7 @@ export default function ProfileScreen({ navigation }) {
 
   const handleEditProfile = () => {
     // 导航到编辑个人资料页面
-    console.log('Edit profile');
+    navigation.navigate('EditProfile');
   };
 
   const handleAgentManagement = () => {

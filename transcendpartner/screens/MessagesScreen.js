@@ -1,61 +1,34 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../api';
 
 export default function MessagesScreen({ navigation }) {
-  // 模拟消息数据
-  const messages = [
-    {
-      id: 1,
-      user: {
-        name: '小超越',
-        avatar: '🧬',
-        isAgent: true,
-        level: 2,
-      },
-      lastMessage: '今天过得怎么样？',
-      timestamp: '10分钟前',
-      unreadCount: 2,
-    },
-    {
-      id: 2,
-      user: {
-        name: '工作助手',
-        avatar: '⚡',
-        isAgent: true,
-        level: 1,
-      },
-      lastMessage: '我已经完成了今天的任务清单',
-      timestamp: '1小时前',
-      unreadCount: 0,
-    },
-    {
-      id: 3,
-      user: {
-        name: '张三',
-        avatar: '👤',
-        isAgent: false,
-      },
-      lastMessage: '明天的会议准备好了吗？',
-      timestamp: '2小时前',
-      unreadCount: 1,
-    },
-    {
-      id: 4,
-      user: {
-        name: '李四',
-        avatar: '👤',
-        isAgent: false,
-      },
-      lastMessage: '谢谢你的帮助！',
-      timestamp: '昨天',
-      unreadCount: 0,
-    },
-  ];
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 从API获取消息数据
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.messages.getMessages();
+        if (response.success) {
+          setMessages(response.data);
+        }
+      } catch (error) {
+        console.error('获取消息失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, []);
 
   const handleChat = (message) => {
     // 导航到聊天详情页面
-    console.log('Chat with:', message.user.name);
+    navigation.navigate('Chat', { user: message.user });
   };
 
   const renderMessageItem = ({ item }) => (
@@ -90,19 +63,31 @@ export default function MessagesScreen({ navigation }) {
           <TouchableOpacity style={styles.headerButton}>
             <Ionicons name="add-circle-outline" size={24} color="#1d9bf0" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
+          <TouchableOpacity style={styles.headerButton} onPress={() => navigation.navigate('Search')}>
             <Ionicons name="search" size={24} color="#71767b" />
           </TouchableOpacity>
         </View>
       </View>
 
-      <FlatList
-        data={messages}
-        renderItem={renderMessageItem}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.messageList}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-      />
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#1d9bf0" />
+          <Text style={styles.loadingText}>加载中...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={messages}
+          renderItem={renderMessageItem}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.messageList}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>暂无消息</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -202,5 +187,25 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#1a1a1a',
     marginLeft: 78,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#71767b',
+    marginTop: 12,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 48,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#71767b',
   },
 });
