@@ -120,7 +120,45 @@ npm run web
 2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
 3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+5. **自动PR**：当推送feature分支到远程时，GitHub Actions会自动创建PR
+
+### 自动PR功能
+
+本项目配置了自动PR功能，当你推送feature分支到远程时，GitHub Actions会自动为你创建PR。
+
+#### 使用方法
+
+1. 创建并切换到feature分支
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. 提交你的更改
+   ```bash
+   git add .
+   git commit -m "feat: your feature description"
+   ```
+
+3. 推送分支到远程
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. 等待GitHub Actions自动创建PR
+
+#### 本地脚本
+
+你也可以使用本地脚本触发自动PR：
+
+```bash
+# 确保脚本有执行权限
+chmod +x scripts/auto-pr.sh
+
+# 运行脚本
+./scripts/auto-pr.sh
+```
+
+脚本会检查分支状态，推送分支到远程，并提示你PR的创建情况。
 
 ## 许可证
 
