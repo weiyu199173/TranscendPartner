@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { colors, spacing, fontSize, borderRadius, shadows } from '../styles';
 
-export default function LoginScreen({ navigation }) {
-  const [phone, setPhone] = useState('');
+export default function LoginScreen({ navigation, route }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { onLogin } = route.params || {};
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('错误', '请输入邮箱和密码');
+      return;
+    }
+
     setIsLoading(true);
-    // 模拟登录过程
-    setTimeout(() => {
+    try {
+      await onLogin(email, password);
+      // 登录成功后，导航会自动处理
+    } catch (error) {
+      Alert.alert('登录失败', error.message || '请检查您的邮箱和密码');
+    } finally {
       setIsLoading(false);
-      // 登录成功，导航到主页面
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
-    }, 1000);
+    }
   };
 
   const handleRegister = () => {
@@ -39,14 +44,15 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.formTitle}>登录</Text>
           
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>手机号</Text>
+            <Text style={styles.inputLabel}>邮箱</Text>
             <TextInput
               style={styles.input}
-              placeholder="请输入手机号"
+              placeholder="请输入邮箱"
               placeholderTextColor="#71767b"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           </View>
 
