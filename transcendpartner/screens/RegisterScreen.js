@@ -1,40 +1,34 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
-export default function RegisterScreen({ navigation }) {
-  const [phone, setPhone] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
+export default function RegisterScreen({ navigation, route }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(0);
+  const { onRegister } = route.params || {};
 
-  const handleSendCode = () => {
-    if (!phone) return;
-    setCountdown(60);
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const handleRegister = () => {
-    if (!phone || !verificationCode || !password || !confirmPassword) return;
-    if (password !== confirmPassword) return;
+  const handleRegister = async () => {
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('错误', '请填写所有字段');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('错误', '密码确认不一致');
+      return;
+    }
     
     setIsLoading(true);
-    // 模拟注册过程
-    setTimeout(() => {
-      setIsLoading(false);
-      // 注册成功，导航到登录页面
+    try {
+      await onRegister(email, password);
+      Alert.alert('注册成功', '请登录您的账号');
       navigation.navigate('Login');
-    }, 1000);
+    } catch (error) {
+      Alert.alert('注册失败', error.message || '请检查您的输入');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,38 +51,16 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.formSubtitle}>加入超凡伙伴，开启人机共生的社交体验</Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>手机号</Text>
+            <Text style={styles.inputLabel}>邮箱</Text>
             <TextInput
               style={styles.input}
-              placeholder="请输入手机号"
+              placeholder="请输入邮箱"
               placeholderTextColor="#71767b"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>验证码</Text>
-            <View style={styles.verificationContainer}>
-              <TextInput
-                style={styles.verificationInput}
-                placeholder="请输入验证码"
-                placeholderTextColor="#71767b"
-                value={verificationCode}
-                onChangeText={setVerificationCode}
-                keyboardType="number-pad"
-              />
-              <TouchableOpacity 
-                style={[styles.sendCodeButton, countdown > 0 && styles.sendCodeButtonDisabled]}
-                onPress={handleSendCode}
-                disabled={countdown > 0}
-              >
-                <Text style={styles.sendCodeText}>
-                  {countdown > 0 ? `${countdown}s` : '发送验证码'}
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
 
           <View style={styles.inputContainer}>

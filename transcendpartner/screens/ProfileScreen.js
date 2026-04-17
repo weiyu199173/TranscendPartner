@@ -1,15 +1,39 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileScreen({ navigation }) {
-  // 模拟用户数据
+export default function ProfileScreen({ navigation, route }) {
+  const { onLogout, user: userData } = route.params || {};
+  
+  // 使用真实用户数据或默认数据
   const user = {
-    name: '用户',
+    name: userData?.email || '用户',
     avatar: '👤',
     bio: '欢迎使用超凡伙伴',
     phone: '138****8888',
     guardianCredit: 95,
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      '退出登录',
+      '确定要退出登录吗？',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '确定',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await onLogout();
+            } catch (error) {
+              Alert.alert('登出失败', error.message || '请稍后再试');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   // 模拟孪生伙伴数据
@@ -149,7 +173,7 @@ export default function ProfileScreen({ navigation }) {
             <Ionicons name="help-circle-outline" size={20} color="#e7e9ea" />
             <Text style={styles.actionButtonText}>帮助与反馈</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#e7e9ea" />
             <Text style={styles.actionButtonText}>退出登录</Text>
           </TouchableOpacity>
